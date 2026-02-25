@@ -1,0 +1,8 @@
+[monitoring]
+obser-1 ansible_host=192.168.201.20 ansible_user=ubuntu ansible_ssh_private_key_file=/home/tienphatng237/Desktop/NT114-AIOPs-DevOps/jenkins-kvm-hub/key_pair/lab-key
+
+[logging]
+obser-2 ansible_host=192.168.201.21 ansible_user=ubuntu ansible_ssh_private_key_file=/home/tienphatng237/Desktop/NT114-AIOPs-DevOps/jenkins-kvm-hub/key_pair/lab-key
+
+[all:vars]
+loki_host=192.168.201.21
