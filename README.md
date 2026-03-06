@@ -18,7 +18,20 @@ ansible-playbook -i inventories/dev/observability.ini playbooks/observability_se
 #### 2.1.1 Grafana
 Dashboards are provisioned automatically from `roles/observability/grafana/files/dashboards`.
 
-#### 2.1.2 Loki
+**Grafana Login**
+
+![Grafana Login](images/grafana_console_login.png)
+
+**Grafana Console**
+
+![Grafana Console](images/grafana_console.png)
+
+#### 2.1.2 Prometheus
+Prometheus system metrics dashboard screenshot:
+
+![Prometheus System Metrics Dashboard](images/prometheus_system_metrics_dashboard.png)
+
+#### 2.1.3 Loki
 Loki collects and queries both system logs and application logs.
 
 **Loki Dashboard for System**
@@ -44,5 +57,9 @@ Default endpoints:
 
 - API: `http://192.168.201.30:9000`
 - Console: `http://192.168.201.30:9001`
+
+**MinIO Console Login**
+
+![MinIO Login](images/minio_login.png)
 
 Default credentials are defined in `roles/minio/defaults/main.yml` and should be changed before production use.
