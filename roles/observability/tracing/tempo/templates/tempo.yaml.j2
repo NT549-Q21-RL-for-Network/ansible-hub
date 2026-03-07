@@ -1,20 +1,23 @@
 auth_enabled: false
 
 server:
-  http_listen_port: 3200
+  http_listen_port: {{ tempo_http_port }}
+  grpc_listen_port: {{ tempo_grpc_port }}
+  log_level: info
 
 distributor:
   receivers:
     otlp:
       protocols:
         grpc:
-          endpoint: 0.0.0.0:4317
+          endpoint: 0.0.0.0:{{ tempo_otlp_grpc_port }}
         http:
-          endpoint: 0.0.0.0:4318
+          endpoint: 0.0.0.0:{{ tempo_otlp_http_port }}
 
 ingester:
   trace_idle_period: 10s
   max_block_duration: 5m
+  complete_block_timeout: 15m
 
 compactor:
   compaction:
@@ -23,15 +26,33 @@ compactor:
 storage:
   trace:
     backend: local
-    local:
-      path: /var/lib/tempo/traces
     wal:
-      path: /var/lib/tempo/wal
-
-querier:
-  frontend_worker:
-    frontend_address: 127.0.0.1:9095
+      path: {{ tempo_data_dir }}/wal
+    local:
+      path: {{ tempo_data_dir }}/traces
 
 metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: k0s
+  processor:
+    service_graphs:
+      dimensions:
+        - namespace
+    span_metrics:
+      dimensions:
+        - namespace
+        - status_code
   storage:
-    path: /var/lib/tempo/metrics
+    path: {{ tempo_data_dir }}/generator/wal
+    remote_write:
+      - url: http://{{ hostvars['obser-1'].ansible_host }}:9090/api/v1/write
+        send_exemplars: true
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors:
+        - service-graphs
+        - span-metrics

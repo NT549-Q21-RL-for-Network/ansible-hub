@@ -23,9 +23,19 @@ scrape_configs:
       - targets:
           - "localhost:{{ prometheus_port | default(9090) }}"
 
+  # ------------------------------------------------------------
+  # Tempo backend metrics
+  # ------------------------------------------------------------
+  - job_name: "tempo"
+    static_configs:
+      - targets:
+          - "{{ hostvars['obser-2'].ansible_host }}:3200"
+        labels:
+          cluster: k0s
+          component: tempo
 
   # ------------------------------------------------------------
-  # Node Exporter (Helm – EndpointSlice)
+  # Node Exporter (Helm - EndpointSlice)
   # Namespace : monitoring
   # Service   : node-exporter-prometheus-node-exporter
   # Scrape via NodeIP:9100 (external Prometheus compatible)
@@ -36,27 +46,22 @@ scrape_configs:
         kubeconfig_file: /etc/prometheus/kubeconfig
 
     relabel_configs:
-      # Keep only monitoring namespace
       - source_labels: [__meta_kubernetes_namespace]
         action: keep
         regex: monitoring
 
-      # Match node-exporter service
       - source_labels: [__meta_kubernetes_service_name]
         action: keep
         regex: node-exporter-prometheus-node-exporter
 
-      # Attach node name label
       - source_labels: [__meta_kubernetes_node_name]
         target_label: node
 
-      # Attach cluster label
       - target_label: cluster
         replacement: k0s
 
-
   # ------------------------------------------------------------
-  # kube-state-metrics (External Prometheus – via NodePort)
+  # kube-state-metrics (External Prometheus - via NodePort)
   # Namespace : monitoring
   # Service   : kube-state-metrics (NodePort 30080)
   # Scrape    : NodeIP:30080
@@ -69,7 +74,6 @@ scrape_configs:
           - "{{ hostvars['worker-2'].ansible_host }}:30080"
         labels:
           cluster: k0s
-
 
 rule_files:
   - "/etc/prometheus/rules/*.yml"

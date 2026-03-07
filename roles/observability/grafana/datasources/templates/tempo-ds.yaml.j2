@@ -5,30 +5,21 @@ datasources:
     type: tempo
     uid: tempo
     access: proxy
-    url: http://{{ tempo_host | default('10.0.5.127') }}:3200
+    url: http://{{ hostvars['obser-2'].ansible_host }}:3200
     isDefault: false
     editable: true
 
     jsonData:
       httpMethod: GET
-      tracesToLogsV2:
-        datasourceUid: loki
-        spanStartTimeShift: "-5m"
-        spanEndTimeShift: "5m"
-        tags:
-          - key: namespace
-            value: namespace
-          - key: pod
-            value: pod
-          - key: container
-            value: container
-        filterByTraceID: true
-        filterBySpanID: false
-        customQuery: true
-        query: '{namespace="$${__tags.namespace}"}'
-
       serviceMap:
         datasourceUid: prometheus
-
+      tracesToLogsV2:
+        datasourceUid: loki
+        filterByTraceID: true
+        filterBySpanID: false
+        spanStartTimeShift: "-5m"
+        spanEndTimeShift: "5m"
       nodeGraph:
         enabled: true
+      search:
+        hide: false
