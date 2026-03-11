@@ -9,11 +9,8 @@ nobind
 persist-key
 persist-tun
 
-# ======================================================
-# Pull routes and options pushed from server
-# Required to receive VPC route (e.g. 10.20.0.0/16)
-# ======================================================
 pull
+route {{ vpc_network }} {{ vpc_netmask }}
 
 cipher AES-256-GCM
 remote-cert-tls server

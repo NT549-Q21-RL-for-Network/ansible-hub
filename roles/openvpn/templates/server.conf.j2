@@ -10,19 +10,6 @@ dh dh.pem
 topology subnet
 server {{ openvpn_network }} {{ openvpn_netmask }}
 
-# ======================================================
-# PUSH ROUTE VPC CHO CLIENT
-# ======================================================
-# NOTE:
-# Hardcoded VPC route to ensure VPN clients receive
-# correct routing information for private subnets.
-# This avoids dependency on external variables during
-# staging and lab deployments.
-#
-# VPC CIDR: {{ vpc_network }}/{{ vpc_netmask }}
-# ======================================================
-# PUSH ROUTE VPC CHO CLIENT
-# ======================================================
 push "route {{ vpc_network }} {{ vpc_netmask }}"
 
 client-to-client
