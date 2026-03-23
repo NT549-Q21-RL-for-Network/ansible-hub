@@ -9,6 +9,38 @@
   tags:
     - ingress
 
+- name: Read ingress-nginx controller external traffic policy
+  become: true
+  command: k0s kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath={.spec.externalTrafficPolicy}
+  register: ingress_nginx_external_traffic_policy
+  retries: 10
+  delay: 15
+  until: ingress_nginx_external_traffic_policy.rc == 0
+  changed_when: false
+  tags:
+    - ingress
+
+- name: Set ingress-nginx controller external traffic policy to Cluster
+  become: true
+  command:
+    argv:
+      - k0s
+      - kubectl
+      - -n
+      - ingress-nginx
+      - patch
+      - svc
+      - ingress-nginx-controller
+      - --type
+      - merge
+      - -p
+      - '{"spec":{"externalTrafficPolicy":"Cluster"}}'
+  when: ingress_nginx_external_traffic_policy.stdout != 'Cluster'
+  register: ingress_nginx_external_traffic_policy_patch
+  changed_when: ingress_nginx_external_traffic_policy_patch.rc == 0
+  tags:
+    - ingress
+
 - name: Wait for ingress-nginx controller pod ready
   become: true
   command: k0s kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=180s
