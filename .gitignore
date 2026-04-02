@@ -17,6 +17,12 @@ inventories/**/*.ini
 !inventories/**/*.ini.example
 
 # =========================
+# Internal docs
+# =========================
+docs/*.md
+docs/**/*.md
+
+# =========================
 # VPN artifacts
 # =========================
 vpn/*
