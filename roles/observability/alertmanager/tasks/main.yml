@@ -2,6 +2,24 @@
 # ALERTMANAGER | INSTALL
 # ============================================================
 
+- name: Check for local Alertmanager secret overrides
+  stat:
+    path: "{{ role_path }}/defaults/main.yml"
+  register: alertmanager_local_defaults
+  tags: [alertmanager, alertmanager_install]
+
+- name: Load Alertmanager example defaults
+  include_vars:
+    file: "{{ role_path }}/defaults/main.yml.example"
+  tags: [alertmanager, alertmanager_install]
+
+- name: Load local Alertmanager secret overrides
+  include_vars:
+    file: "{{ role_path }}/defaults/main.yml"
+  when: alertmanager_local_defaults.stat.exists
+  no_log: true
+  tags: [alertmanager, alertmanager_install]
+
 - name: Create alertmanager user
   # Dedicated system account for running the Alertmanager service.
   user:

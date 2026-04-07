@@ -3,6 +3,6 @@ alertmanager_version: "0.28.1"
 alertmanager_port: 9093
 
 # Telegram integration values for Alertmanager.
-# Fill these in inventory/group_vars/host_vars or vaulted vars.
+# Copy this file to defaults/main.yml locally and fill these values there.
 telegram_bot_token: ""
 telegram_chat_id: ""

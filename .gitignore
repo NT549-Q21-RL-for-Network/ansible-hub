@@ -38,6 +38,7 @@ vpn/*
 *.vault
 *.secret
 *.secrets
+roles/observability/alertmanager/defaults/main.yml
 
 # =========================
 # OS / Editor noise
