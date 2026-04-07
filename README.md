@@ -73,6 +73,15 @@ ansible-playbook \
   playbooks/monitoring_setup.yml
 ```
 
+For Alertmanager config, run:
+
+```bash
+cp roles/observability/alertmanager/defaults/main.yml.example \
+   roles/observability/alertmanager/defaults/main.yml
+```
+
+Then fill in the Telegram token and chat ID locally.
+
 #### 2.3.1 Grafana
 Dashboards are provisioned automatically from `roles/observability/grafana/files/dashboards`.
 
