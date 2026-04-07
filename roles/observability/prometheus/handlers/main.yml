@@ -6,3 +6,9 @@
   systemd:
     name: prometheus
     state: restarted
+
+- name: Restart Prometheus kube proxy
+  systemd:
+    name: prometheus-kube-proxy
+    state: restarted
+

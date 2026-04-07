@@ -22,6 +22,15 @@
     group: grafana
     mode: "0644"
   notify: Restart Grafana
+  when: grafana_enable_prometheus_datasource
+  tags: [grafana, grafana_datasource, datasource_prometheus]
+
+- name: Remove Prometheus datasource when disabled
+  file:
+    path: "{{ grafana_provisioning_dir }}/prometheus.yml"
+    state: absent
+  notify: Restart Grafana
+  when: not grafana_enable_prometheus_datasource
   tags: [grafana, grafana_datasource, datasource_prometheus]
 
 # -------------------------
@@ -35,6 +44,15 @@
     group: grafana
     mode: "0644"
   notify: Restart Grafana
+  when: grafana_enable_loki_datasource
+  tags: [grafana, grafana_datasource, datasource_loki]
+
+- name: Remove Loki datasource when disabled
+  file:
+    path: "{{ grafana_provisioning_dir }}/loki.yml"
+    state: absent
+  notify: Restart Grafana
+  when: not grafana_enable_loki_datasource
   tags: [grafana, grafana_datasource, datasource_loki]
 
 # -------------------------
@@ -48,4 +66,13 @@
     group: grafana
     mode: "0644"
   notify: Restart Grafana
+  when: grafana_enable_tempo_datasource
+  tags: [grafana, grafana_datasource, datasource_tempo, tempo]
+
+- name: Remove Tempo datasource when disabled
+  file:
+    path: "{{ grafana_provisioning_dir }}/tempo.yml"
+    state: absent
+  notify: Restart Grafana
+  when: not grafana_enable_tempo_datasource
   tags: [grafana, grafana_datasource, datasource_tempo, tempo]

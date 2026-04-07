@@ -160,7 +160,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(node_cpu_seconds_total{mode!=\"idle\"}[5m])) / sum(rate(node_cpu_seconds_total[5m])) * 100",
+          "expr": "sum(irate(node_cpu_seconds_total{mode!=\"idle\"}[15s])) / sum(irate(node_cpu_seconds_total[15s])) * 100",
           "refId": "A",
           "legendFormat": "cluster"
         }
@@ -360,7 +360,7 @@
       },
       "targets": [
         {
-          "expr": "avg((100 - avg by(instance)(rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))*100) > 80)",
+          "expr": "avg((100 - avg by(instance)(irate(node_cpu_seconds_total{mode=\"idle\"}[15s]))*100) > 80)",
           "refId": "A",
           "legendFormat": "ratio"
         }
@@ -440,7 +440,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace!=\"\",pod!=\"\"}[5m]))",
+          "expr": "sum by (namespace, pod) (irate(container_cpu_usage_seconds_total{namespace!=\"\",pod!=\"\"}[15s]))",
           "refId": "A",
           "legendFormat": "{{namespace}}/{{pod}}"
         }
@@ -533,22 +533,22 @@
       },
       "targets": [
         {
-          "expr": "sum(max by (namespace,pod,container) (kube_pod_container_resource_requests{resource=\"cpu\",unit=\"core\",namespace!=\"\",namespace!~\"mini-ecommerce|observability|argocd\"}))",
+          "expr": "clamp_min(sum(irate(node_cpu_seconds_total{mode!=\"idle\"}[15s])) - (sum(sum by (service) (rate(process_cpu_time_ns_total{job=\"mini-ecommerce-actuator\"}[1m])) / 1e9) or sum(sum by (service) (process_cpu_usage{job=\"mini-ecommerce-actuator\"} * system_cpu_count{job=\"mini-ecommerce-actuator\"})) or vector(0)), 0) or vector(0)",
           "refId": "A",
           "legendFormat": "System CPU (cores)"
         },
         {
-          "expr": "sum(max by (namespace,pod,container) (kube_pod_container_resource_requests{resource=\"cpu\",unit=\"core\",namespace=\"mini-ecommerce\"}))",
+          "expr": "sum(sum by (service) (rate(process_cpu_time_ns_total{job=\"mini-ecommerce-actuator\"}[1m])) / 1e9) or sum(sum by (service) (process_cpu_usage{job=\"mini-ecommerce-actuator\"} * system_cpu_count{job=\"mini-ecommerce-actuator\"})) or vector(0)",
           "refId": "B",
           "legendFormat": "App CPU (cores)"
         },
         {
-          "expr": "(sum(max by (namespace,pod,container) (kube_pod_container_resource_requests{resource=\"cpu\",unit=\"core\",namespace=\"observability\"}))) or vector(0)",
+          "expr": "vector(0)",
           "refId": "C",
           "legendFormat": "Monitoring CPU (cores)"
         },
         {
-          "expr": "(sum(max by (namespace,pod,container) (kube_pod_container_resource_requests{resource=\"cpu\",unit=\"core\",namespace=\"argocd\"}))) or vector(0)",
+          "expr": "vector(0)",
           "refId": "D",
           "legendFormat": "ArgoCD CPU (cores)"
         }
@@ -588,12 +588,12 @@
       },
       "targets": [
         {
-          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[15s])) * 100)",
           "refId": "A",
           "legendFormat": "{{instance}} CPU (%)"
         },
         {
-          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "expr": "100 - (avg(irate(node_cpu_seconds_total{mode=\"idle\"}[15s])) * 100)",
           "refId": "B",
           "legendFormat": "Cluster Avg CPU (%)"
         }
@@ -633,14 +633,14 @@
       },
       "targets": [
         {
-          "expr": "(sum by (service) (label_replace(max by (namespace,pod,container) (kube_pod_container_resource_requests{namespace=\"mini-ecommerce\",resource=\"cpu\",unit=\"core\"}), \"service\", \"$1\", \"pod\", \"^(.*?)(?:-[a-f0-9]{8,10}-[a-z0-9]{5}|-[0-9]+)?$\"))) or (0 * max by (service) (kube_service_info{namespace=\"mini-ecommerce\"}))",
+          "expr": "(sum by (service) (rate(process_cpu_time_ns_total{job=\"mini-ecommerce-actuator\"}[1m])) / 1e9) or (sum by (service) (process_cpu_usage{job=\"mini-ecommerce-actuator\"} * system_cpu_count{job=\"mini-ecommerce-actuator\"})) or on(service) (0 * max by (service) (up{job=\"mini-ecommerce-actuator\"}))",
           "refId": "A",
           "legendFormat": "{{service}} (cores)"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "cores",
           "custom": {
             "drawStyle": "line",
             "lineWidth": 2,
@@ -649,7 +649,10 @@
               "mode": "none",
               "group": "A"
             }
-          }
+          },
+          "decimals": 3,
+          "min": 0,
+          "max": 2
         },
         "overrides": []
       },
@@ -686,22 +689,22 @@
       },
       "targets": [
         {
-          "expr": "sum(max by (namespace,pod,container) (kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",namespace!=\"\",namespace!~\"mini-ecommerce|observability|argocd\"})) / (1024^3)",
+          "expr": "clamp_min((sum(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / (1024^3)) - ((sum(sum by (service) (jvm_memory_used_bytes{job=\"mini-ecommerce-actuator\"})) / (1024^3)) or vector(0)), 0) or vector(0)",
           "refId": "A",
           "legendFormat": "System RAM (GiB)"
         },
         {
-          "expr": "sum(max by (namespace,pod,container) (kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",namespace=\"mini-ecommerce\"})) / (1024^3)",
+          "expr": "(sum(sum by (service) (jvm_memory_used_bytes{job=\"mini-ecommerce-actuator\"})) / (1024^3)) or vector(0)",
           "refId": "B",
           "legendFormat": "App RAM (GiB)"
         },
         {
-          "expr": "((sum(max by (namespace,pod,container) (kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",namespace=\"observability\"}))) / (1024^3)) or vector(0)",
+          "expr": "vector(0)",
           "refId": "C",
           "legendFormat": "Monitoring RAM (GiB)"
         },
         {
-          "expr": "((sum(max by (namespace,pod,container) (kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",namespace=\"argocd\"}))) / (1024^3)) or vector(0)",
+          "expr": "vector(0)",
           "refId": "D",
           "legendFormat": "ArgoCD RAM (GiB)"
         }
@@ -781,7 +784,7 @@
       },
       "targets": [
         {
-          "expr": "((sum by (service) (label_replace(max by (namespace,pod,container) (kube_pod_container_resource_requests{namespace=\"mini-ecommerce\",resource=\"memory\",unit=\"byte\"}), \"service\", \"$1\", \"pod\", \"^(.*?)(?:-[a-f0-9]{8,10}-[a-z0-9]{5}|-[0-9]+)?$\"))) / (1024^3)) or (0 * max by (service) (kube_service_info{namespace=\"mini-ecommerce\"}))",
+          "expr": "((sum by (service) (jvm_memory_used_bytes{job=\"mini-ecommerce-actuator\"})) / (1024^3)) or on(service) (0 * max by (service) (up{job=\"mini-ecommerce-actuator\"}))",
           "refId": "A",
           "legendFormat": "{{service}} (GiB)"
         }
