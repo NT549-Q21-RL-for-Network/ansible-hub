@@ -20,6 +20,38 @@
   tags:
     - ingress
 
+- name: Read ingress-nginx controller HTTP nodePort
+  become: true
+  command: k0s kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath={.spec.ports[0].nodePort}
+  register: ingress_nginx_http_nodeport
+  retries: 10
+  delay: 15
+  until: ingress_nginx_http_nodeport.rc == 0
+  changed_when: false
+  tags:
+    - ingress
+
+- name: Pin ingress-nginx controller HTTP nodePort to 30293
+  become: true
+  command:
+    argv:
+      - k0s
+      - kubectl
+      - -n
+      - ingress-nginx
+      - patch
+      - svc
+      - ingress-nginx-controller
+      - --type
+      - merge
+      - -p
+      - '{"spec":{"ports":[{"name":"http","port":80,"protocol":"TCP","targetPort":"http","nodePort":30293}]}}'
+  when: ingress_nginx_http_nodeport.stdout != '30293'
+  register: ingress_nginx_http_nodeport_patch
+  changed_when: ingress_nginx_http_nodeport_patch.rc == 0
+  tags:
+    - ingress
+
 - name: Set ingress-nginx controller external traffic policy to Cluster
   become: true
   command:

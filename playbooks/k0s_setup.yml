@@ -32,6 +32,11 @@
 - hosts: k0s_controller
   become: true
   tasks:
+    - name: Install storage provisioner
+      import_role:
+        name: k0s_controller
+        tasks_from: install_storage.yml
+
     - name: Install ingress-nginx controller
       import_role:
         name: k0s_controller
