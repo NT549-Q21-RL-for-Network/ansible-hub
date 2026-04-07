@@ -4,5 +4,5 @@ alertmanager_port: 9093
 
 # Telegram integration values for Alertmanager.
 # Fill these in inventory/group_vars/host_vars or vaulted vars.
-telegram_bot_token: "8645463980:AAFaASgvNXg5jgv0NeY5SP4EnaAO4t_-BSY"
-telegram_chat_id: "8435103926"
+telegram_bot_token: ""
+telegram_chat_id: ""
