@@ -16,7 +16,7 @@ ansible-playbook -i inventories/staging/openvpn.ini playbooks/openvpn_setup.yml
 Connect to the infrastructure after the configuration is completed:
 
 ```bash
-sudo openvpn --config /ansible-hub/vpn/devops.ovpn
+sudo openvpn --config ./vpn/devops.ovpn
 ```
 
 ### 2.2 Kubernetes (k0s)
